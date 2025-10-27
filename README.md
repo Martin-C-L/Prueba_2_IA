@@ -1,14 +1,13 @@
 # Prueba_2_IA
 Prueba 2 Ingeniería de Soluciones con Inteligencia Artificial
 
-# Crear el entorno
+Crear el entorno
 python -m venv venv
 
-# Activar el entorno
-# Windows (cmd): .\venv\Scripts\activate
-# Mac/Linux (bash): source venv/bin/activate
+Activar el entorno
+.\venv\Scripts\activate
 
-# Instalar las bibliotecas
+Instalar las bibliotecas
 pip install crewai crewai_tools langchain_openai wikipedia
 
 Configuración de Variables de Entorno
