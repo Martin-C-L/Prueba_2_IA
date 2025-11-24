@@ -1,4 +1,6 @@
-# Prueba_2_IA
+# Prueba_IA
+
+#Prueba_2_IA
 Prueba 2 Ingeniería de Soluciones con Inteligencia Artificial
 
 Crear el entorno
