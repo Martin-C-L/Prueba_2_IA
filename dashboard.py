@@ -12,7 +12,6 @@ def create_pdf(text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    # Reemplazo para evitar errores de caracteres
     text = text.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 10, txt=text)
     return pdf.output(dest='S').encode('latin-1')
@@ -41,7 +40,6 @@ class WikipediaSearchTool(BaseTool):
     def _run(self, query: str) -> str:
         try:
             wikipedia.set_lang("es")
-            # CAMBIO 1: Leemos mucho más texto (20 oraciones o más)
             return wikipedia.summary(query, sentences=25)
         except Exception as e:
             return f"Error buscando: {str(e)}"
@@ -49,7 +47,6 @@ class WikipediaSearchTool(BaseTool):
 def ejecutar_investigacion(tema):
     wiki_tool = WikipediaSearchTool()
     
-    # CAMBIO 2: Agentes con personalidad "Extensa"
     investigador = Agent(
         role="Investigador Senior",
         goal=f"Realizar una investigación exhaustiva y profunda sobre: {tema}",
@@ -73,7 +70,6 @@ def ejecutar_investigacion(tema):
         agent=investigador
     )
 
-    # CAMBIO 3: Orden explícita de escribir mucho
     tarea2 = Task(
         description="Escribe un INFORME DETALLADO (mínimo 400 palabras) en texto plano. Debe incluir: Introducción completa, Historia detallada, Datos Clave y Conclusión.",
         expected_output="Artículo extenso en texto plano.",
@@ -89,7 +85,6 @@ def ejecutar_investigacion(tema):
 
     return crew.kickoff()
 
-# --- INTERFAZ ---
 
 st.title("🕵️‍♂️ Agente Investigador Profundo (PDF)")
 st.markdown("---")
