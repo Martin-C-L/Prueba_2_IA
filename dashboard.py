@@ -3,21 +3,18 @@ import os
 import wikipedia
 from crewai import Agent, Task, Crew, Process
 from crewai.tools import BaseTool
-from fpdf import FPDF  
+from fpdf import FPDF
 
-st.set_page_config(page_title="Investigador AI", page_icon="🕵️‍♂️", layout="wide")
+st.set_page_config(page_title="Investigador Pro (PDF)", page_icon="🕵️‍♂️", layout="wide")
 
 def create_pdf(text):
     """Convierte el texto markdown a un PDF simple"""
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    
-
+    # Reemplazo para evitar errores de caracteres
     text = text.encode('latin-1', 'replace').decode('latin-1')
-    
     pdf.multi_cell(0, 10, txt=text)
-    
     return pdf.output(dest='S').encode('latin-1')
 
 def setup_api():
@@ -37,7 +34,6 @@ def setup_api():
         return True
     return False
 
-
 class WikipediaSearchTool(BaseTool):
     name: str = "BuscadorWikipedia"
     description: str = "Busca en Wikipedia un tema."
@@ -45,39 +41,42 @@ class WikipediaSearchTool(BaseTool):
     def _run(self, query: str) -> str:
         try:
             wikipedia.set_lang("es")
-            return wikipedia.summary(query, sentences=5)
+            # CAMBIO 1: Leemos mucho más texto (20 oraciones o más)
+            return wikipedia.summary(query, sentences=25)
         except Exception as e:
             return f"Error buscando: {str(e)}"
 
 def ejecutar_investigacion(tema):
     wiki_tool = WikipediaSearchTool()
     
+    # CAMBIO 2: Agentes con personalidad "Extensa"
     investigador = Agent(
         role="Investigador Senior",
-        goal=f"Investigar a fondo sobre: {tema}",
-        backstory="Experto en encontrar datos precisos y fuentes confiables.",
+        goal=f"Realizar una investigación exhaustiva y profunda sobre: {tema}",
+        backstory="Eres un investigador meticuloso. Odias los resúmenes cortos. Buscas cada detalle, fecha y curiosidad disponible.",
         tools=[wiki_tool],
         verbose=True,
         allow_delegation=False
     )
 
     redactor = Agent(
-        role="Redactor Técnico",
-        goal="Escribir un artículo atractivo y bien estructurado.",
-        backstory="Escritor especializado en sintetizar información compleja.",
+        role="Redactor Jefe",
+        goal="Escribir un informe detallado, largo y bien estructurado.",
+        backstory="Periodista experto en reportajes de investigación profunda.",
         verbose=True,
         allow_delegation=False
     )
 
     tarea1 = Task(
-        description=f"Busca información detallada sobre '{tema}'. Encuentra historia, datos clave y curiosidades.",
-        expected_output="Lista de puntos clave y datos verificados.",
+        description=f"Investiga a fondo sobre '{tema}'. Extrae toda la información posible: historia completa, fechas, personajes y datos técnicos.",
+        expected_output="Un documento extenso con todos los datos encontrados.",
         agent=investigador
     )
 
+    # CAMBIO 3: Orden explícita de escribir mucho
     tarea2 = Task(
-        description="Usando la investigación, escribe un post de blog en formato texto claro (evita markdown complejo) con títulos y viñetas.",
-        expected_output="Artículo completo en texto plano.",
+        description="Escribe un INFORME DETALLADO (mínimo 400 palabras) en texto plano. Debe incluir: Introducción completa, Historia detallada, Datos Clave y Conclusión.",
+        expected_output="Artículo extenso en texto plano.",
         agent=redactor,
         context=[tarea1]
     )
@@ -90,8 +89,9 @@ def ejecutar_investigacion(tema):
 
     return crew.kickoff()
 
+# --- INTERFAZ ---
 
-st.title("🕵️‍♂️ Agente Investigador (PDF)")
+st.title("🕵️‍♂️ Agente Investigador Profundo (PDF)")
 st.markdown("---")
 
 api_lista = setup_api()
@@ -100,14 +100,14 @@ col1, col2 = st.columns([1, 2])
 
 with col1:
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712035.png", width=150)
-    st.info("**Genera reportes y descárgalos en PDF.**")
+    st.info("**Genera reportes LARGOS y descárgalos en PDF.**")
 
 with col2:
-    tema = st.text_input("¿Sobre qué quieres investigar hoy?", placeholder="Ej: Inteligencia Artificial...")
+    tema = st.text_input("¿Sobre qué quieres investigar hoy?", placeholder="Ej: Historia de Roma...")
     boton_buscar = st.button("🚀 Iniciar Investigación", type="primary", disabled=not api_lista)
 
 if boton_buscar and tema:
-    with st.spinner('🤖 Investigando y generando PDF...'):
+    with st.spinner('🤖 Investigando a fondo y generando PDF...'):
         try:
             resultado_crew = ejecutar_investigacion(tema)
             texto_resultado = str(resultado_crew) 
@@ -129,7 +129,7 @@ if boton_buscar and tema:
             pdf_bytes = create_pdf(texto_resultado)
 
             st.download_button(
-                label="📕 Descargar Informe en PDF",
+                label="📕 Descargar Informe Extenso en PDF",
                 data=pdf_bytes,
                 file_name=f"informe_{tema}.pdf",
                 mime="application/pdf"
